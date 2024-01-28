@@ -1,6 +1,9 @@
-import pymysql as mysql
 import sys
 
+
+import os
+from dotenv import load_dotenv
+load_dotenv()
 from database import conn, createTable
 
 # Add password to the database
@@ -39,9 +42,7 @@ def interpretResponse(inp):
             # If all fields are entered properly, ask for confirmation (display data) then add to database if yes
             # If no, then send user back to create command
 
-            # if not askMasterPassword():
-            #     print("That is not the correct password.\n")
-            #     return
+            askMasterPassword()
             createPassword()
         case "d":
             # Ask user for master password before continuing; if wrong return to start prompt
@@ -115,9 +116,18 @@ def printCommandList():
     runStartPrompt()
 
 def askMasterPassword():
+    masterLocation = open(os.getenv('FILEPATH'), 'r')
+    masterKey = masterLocation.readline()
+
+
     pswdEntry = input("What is the master password? ")
-    pswdMatch = False
-    return pswdMatch
+
+    if pswdEntry == masterKey:
+        print("Correct!\n")
+        return
+
+    print("The master password you entered was wrong. Returning to start prompt.\n")
+    runStartPrompt()
 
 
 def checkIfQuitOrStart(inp):

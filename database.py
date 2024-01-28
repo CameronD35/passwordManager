@@ -1,11 +1,12 @@
 import pymysql as mysql
-import sys
+import os
+from dotenv import load_dotenv
 
-
+load_dotenv()
 conn = mysql.connect(
     host='localhost',
     user='root',
-    password='3416SbSp13MS',
+    password=os.getenv('DBPASSWORD'),
     db='pswdmanager',
     charset='utf8mb4',
     cursorclass=mysql.cursors.DictCursor
