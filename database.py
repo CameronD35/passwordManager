@@ -1,27 +1,23 @@
-from flask_sqlalchemy import SQLAlchemy
+import pymysql as mysql
+import sys
 
-db = SQLAlchemy()
 
-class Email(db.Model):
-    
-    __tableanme__ = 'emails'
-    
-    id = db.Column(db.Integer, primary_key=True)
-    email = db.Column(db.String(50), nullable=False)
-    password = db.Column(db.String(50), nullable=True)
-    service = db.Column(db.String(50), nullable=False)
+conn = mysql.connect(
+    host='localhost',
+    user='root',
+    password='3416SbSp13MS',
+    db='pswdmanager',
+    charset='utf8mb4',
+    cursorclass=mysql.cursors.DictCursor
+)
 
-class Password(db.Model):
-    
-    __tableanme__ = 'passwords'
-    
-    id = db.Column(db.Integer, primary_key=True)
-    website = db.Column(db.String(50), nullable=False)
-    username = db.Column(db.String(50), nullable=False)
-    password = db.Column(db.String(50), nullable=False)
-    email = db.Column(db.String(50), nullable=False)
+def createTable(tableName, columnArray):
+    columnString = ""
+    for column in columnArray:
+        columnString += f", {column} VARCHAR(100)"
 
-def connect_db(app):
-    db.app = app
-    db.init_app(app)
 
+    with conn.cursor() as cursor:
+        sql = (f"CREATE TABLE {tableName} (id INT(10) UNSIGNED AUTO_INCREMENT PRIMARY KEY{columnString})")
+        print(sql)
+        cursor.execute(sql)
