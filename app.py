@@ -17,7 +17,7 @@ def submitPassword(webStr, userStr, pswdStr, emailStr):
             conn.commit()
     
     finally:
-        print("\n")
+        pass
 
 
 def interpretResponse(inp):
@@ -54,7 +54,13 @@ def interpretResponse(inp):
             # If yes, print all related data, then remove from database and send confirmation message, return to start prompt
             askMasterPassword()
             deletePassword()
-            runStartPrompt()
+
+        case "s":
+            # Ask user what website they are searching for
+            # If the password exists for that website, send conformation message
+            # If the password does not exist for that website ask if they would like to create one
+            # If yes run createPassword(), if no return to start
+            searchPassword()
         
         case _:
             # How????
@@ -88,7 +94,7 @@ def createPassword():
     password = input("\nWhat is the password? ")
     resArray.append(str(password))
 
-
+    # Checks to see if any of the above inputs were empty; if so, go back to beginning of program
     for response in resArray:
         if response == "":
             print("\nYou cannot send an empty response.\n")
@@ -105,7 +111,9 @@ def createPassword():
 # Place deletion logic here
 def deletePassword():
     websiteName = str(input("\nWhat is the website you would like to delete? "))
-    dbEntry = findPassword(websiteName)
+    dbEntry = findPassword(websiteName, deletePassword)
+
+    # Checks to make sure that dbEntry is not an empty string
     if not type (dbEntry) == None:
         confirmData(f"Delete Website: {dbEntry.get("website")}\n Delete Username: {dbEntry.get("username")}\n Delete Password: {dbEntry.get("password")}\n Delete Email: {dbEntry.get("email")}\n", deletePassword)
         doubleConfirm = input(f"\nAre you sure you want to delete password '{dbEntry.get("password")}' from '{dbEntry.get("website")}' (y/n)? ")
@@ -123,9 +131,21 @@ def deletePassword():
     
     finally:
         print("\nDeletion successful.")
+        runStartPrompt()
 
+# Place search logic here
+def searchPassword():
+    website = input("\nWhat is the website? ")
+    dbEntry = findPassword(website, searchPassword)
+    print(f"A password for '{website}' does exist!")
+    runStartPrompt()
+    # displayPassword = input(f"\nWould you like to see the password for '{website}'? (y/n):")
 
-def findPassword(websiteName):
+    # if not displayPassword == "y"
+
+# Query the database to see if the website exists
+# If the password does not exist then the function that this was called in is restarted or the user may create a password for that website
+def findPassword(websiteName, restartFunction):
     checkIfQuitOrStart(websiteName)
     try:
         with conn.cursor() as cursor:
@@ -135,13 +155,20 @@ def findPassword(websiteName):
             if len(dbEntry) > 0:
                 return dbEntry[0]
             else:
-                print(f"The website '{websiteName}' does not have an entry in the database. Try again or type 'start' to go back to the start.\n")
-                deletePassword()
+                print(f"The website '{websiteName}' does not have an entry in the database. Try again, create the password, or type 'start' to go back to the start.\n")
+
+                create = input(f"Would you like to create a password for '{websiteName}'? (y/n):")
+
+                if create == "y":
+                    createPassword()
+
+                restartFunction()
     
     finally:
-        print("\n")
+        pass
 
 
+# Print the list of commands
 def printCommandList():
     print("Printing command list.\n")
 
@@ -151,6 +178,8 @@ def printCommandList():
     print("\n")
     runStartPrompt()
 
+# Use the filepath in a .env to find the masterkey and if user inputs correctly, move on
+# Otherwise, return to the start
 def askMasterPassword():
     masterLocation = open(os.getenv('FILEPATH'), 'r')
     masterKey = masterLocation.readline()
@@ -165,7 +194,7 @@ def askMasterPassword():
     print("The master password you entered was wrong. Returning to start prompt.\n")
     runStartPrompt()
 
-
+# Check if an input contains either 'q' or 'start'
 def checkIfQuitOrStart(inp):
     if inp == "q":
         conn.close()
@@ -178,6 +207,7 @@ def runStartPrompt():
     res = input("\nWhat would you like to do? (Type 'ls' for a list of commands) ")
     interpretResponse(res)
 
+# Ask user for confimation on the data being submitted, if not restart a command
 def confirmData(data, restartFunction):
     confirmation = input(f"Would you like to submit the following data:\n {data}\n(y/n): ")
 
@@ -194,9 +224,15 @@ def confirmData(data, restartFunction):
 
 
 # list of valid commands
-commandList = ['q', 'ls', 'c', 'd', 'start', 'how do you even know about this']
+commandList = ['q', 'ls', 'c', 'd', 'start', 's', 'how do you even know about this']
 
-commandDescriptions = ["Quits the program.", "Prints list of all commands and their descriptions.", "Creates a password.", "Deletes a password by website name or id.", "Returns back to starting prompt (Usable at any point).", "Dude, how?"]
+commandDescriptions = ["Quits the program.", 
+                       "Prints list of all commands and their descriptions.", 
+                       "Creates a password.", 
+                       "Deletes a password by website name or id.", 
+                       "Returns back to starting prompt (Usable at any point).", 
+                       "Seraches the database for password that matches a specfied website"
+                       "Dude, how?"]
 
 # Title Line
 print("\n---PASSWORD MANAGER---")
