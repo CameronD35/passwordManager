@@ -116,6 +116,7 @@ def deletePassword():
     # Checks to make sure that dbEntry is not an empty string
     if not type (dbEntry) == None:
         confirmData(f"Delete Website: {dbEntry.get("website")}\n Delete Username: {dbEntry.get("username")}\n Delete Password: {dbEntry.get("password")}\n Delete Email: {dbEntry.get("email")}\n", deletePassword)
+
         doubleConfirm = input(f"\nAre you sure you want to delete password '{dbEntry.get("password")}' from '{dbEntry.get("website")}' (y/n)? ")
 
         if not doubleConfirm == "y":
@@ -136,12 +137,21 @@ def deletePassword():
 # Place search logic here
 def searchPassword():
     website = input("\nWhat is the website? ")
-    dbEntry = findPassword(website, searchPassword)
-    print(f"A password for '{website}' does exist!")
-    runStartPrompt()
-    # displayPassword = input(f"\nWould you like to see the password for '{website}'? (y/n):")
 
-    # if not displayPassword == "y"
+    dbEntry = findPassword(website, searchPassword)
+    
+    
+    print(f"A password for '{website}' does exist!")
+    displayPassword = input(f"\nWould you like to see the password for '{website}'? (y/n): ")
+
+    if not displayPassword == "y":
+        runStartPrompt()
+
+    askMasterPassword()
+    print(dbEntry)
+    print(f"The password for '{website}' is '{dbEntry.get("password")}'.")
+
+    runStartPrompt()
 
 # Query the database to see if the website exists
 # If the password does not exist then the function that this was called in is restarted or the user may create a password for that website
@@ -157,7 +167,7 @@ def findPassword(websiteName, restartFunction):
             else:
                 print(f"The website '{websiteName}' does not have an entry in the database. Try again, create the password, or type 'start' to go back to the start.\n")
 
-                create = input(f"Would you like to create a password for '{websiteName}'? (y/n):")
+                create = input(f"Would you like to create a password for '{websiteName}'? (y/n): ")
 
                 if create == "y":
                     createPassword()
