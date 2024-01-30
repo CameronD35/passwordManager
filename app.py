@@ -141,15 +141,15 @@ def searchPassword():
     dbEntry = findPassword(website, searchPassword)
     
     
-    print(f"A password for '{website}' does exist!")
+    print(f"\nA password for '{website}' does exist!")
     displayPassword = input(f"\nWould you like to see the password for '{website}'? (y/n): ")
 
     if not displayPassword == "y":
         runStartPrompt()
 
     askMasterPassword()
-    print(dbEntry)
-    print(f"The password for '{website}' is '{dbEntry.get("password")}'.")
+    # print(dbEntry)
+    print(f"\nThe password for '{website}' is '{dbEntry.get("password")}'.")
 
     runStartPrompt()
 
@@ -195,10 +195,10 @@ def askMasterPassword():
     masterKey = masterLocation.readline()
 
 
-    pswdEntry = input("What is the master password? ")
+    pswdEntry = input("\nWhat is the master password? ")
 
     if pswdEntry == masterKey:
-        print("Correct!\n")
+        print("\033[92m" + "Correct!\n" + "\033[0m")
         return
 
     print("The master password you entered was wrong. Returning to start prompt.\n")
